@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI-чат — контент-специалист (v2)</title>
+  <meta name="description" content="Улучшенный интерфейс чата с AI-ботом: тёмная тема, пузырьки, индикатор печати, автоскролл, меньше повторов, контекстные ответы." />
+  <style>
+    :root{
+      --bg:#070a12;
+      --line: rgba(255,255,255,.10);
+      --text:#eaf1ff;
+      --muted:#a9b7d6;
+      --shadow: 0 28px 90px rgba(0,0,0,.55);
+
+      /* message gradients */
+      --me1:#8b5cf6;   /* lilac/violet */
+      --me2:#6d28d9;   /* deeper violet */
+      --bot1:#0f2f2a;  /* emerald dark */
+      --bot2:#22323a;  /* deep emerald-gray */
+      --emerald:#34d399;
+
+      --accent1:#7c3aed;
+      --accent2:#22d3ee;
+      --accent3:#f97316;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(950px 560px at 18% 10%, rgba(124,58,237,.22), transparent 60%),
+        radial-gradient(820px 560px at 82% 18%, rgba(34,211,238,.18), transparent 60%),
+        radial-gradient(760px 520px at 50% 96%, rgba(249,115,22,.12), transparent 60%),
+        linear-gradient(180deg, #050712 0%, var(--bg) 35%, #050712 100%);
+      overflow:hidden;
+    }
+
+    .noise{
+      pointer-events:none;
+      position:fixed; inset:0;
+      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" stitchTiles="stitch"/></filter><rect width="140" height="140" filter="url(%23n)" opacity=".25"/></svg>');
+      mix-blend-mode: overlay;
+      opacity:.055;
+      z-index:-1;
+    }
+
+    .wrap{
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 18px 14px 18px;
+    }
+
+    .app{
+      width:min(980px, 100%);
+      height:min(760px, calc(100vh - 36px));
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(14px);
+      position:relative;
+      display:flex;
+      flex-direction:column;
+    }
+    .app::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(600px 260px at 18% 0%, rgba(124,58,237,.22), transparent 60%),
+        radial-gradient(620px 260px at 82% 0%, rgba(34,211,238,.18), transparent 62%);
+      opacity:.9;
+      pointer-events:none;
+      mask: linear-gradient(#000, transparent 70%);
+    }
+
+    header{
+      position:relative;
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      background: rgba(10,14,22,.40);
+      backdrop-filter: blur(12px);
+    }
+
+    .title{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      min-width: 0;
+    }
+    .badge{
+      width: 38px;
+      aspect-ratio: 1/1;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(120px 120px at 28% 28%, rgba(255,255,255,.12), transparent 55%),
+        linear-gradient(135deg, rgba(124,58,237,.28), rgba(34,211,238,.18));
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      flex: 0 0 auto;
+    }
+    .badge svg{width:20px;height:20px;opacity:.95}
+    .hgroup{min-width: 0;}
+    .hgroup h1{
+      margin:0;
+      font-size: 15.5px;
+      letter-spacing: -.2px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .hgroup p{
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      color: var(--muted);
+      font-size: 12.5px;
+      flex: 0 0 auto;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:99px;
+      background: linear-gradient(135deg, var(--accent1), var(--accent2));
+      box-shadow: 0 0 0 3px rgba(124,58,237,.14);
+    }
+
+    .messages{
+      position:relative;
+      flex: 1 1 auto;
+      padding: 14px 14px 10px;
+      overflow:auto;
+      scroll-behavior:smooth;
+    }
+    .messages::-webkit-scrollbar{width:10px}
+    .messages::-webkit-scrollbar-thumb{
+      background: rgba(255,255,255,.08);
+      border: 2px solid rgba(0,0,0,0);
+      background-clip: padding-box;
+      border-radius: 999px;
+    }
+    .messages::-webkit-scrollbar-track{background: transparent}
+
+    .day{
+      display:flex;
+      justify-content:center;
+      margin: 10px 0 14px;
+    }
+    .day span{
+      font-size: 12px;
+      color: rgba(169,183,214,.95);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      padding: 8px 10px;
+      border-radius: 999px;
+    }
+
+    .row{display:flex; gap: 10px; margin: 10px 0;}
+    .row.me{ justify-content:flex-end; }
+    .row.bot{ justify-content:flex-start; }
+
+    .bubble{
+      max-width: min(680px, 86%);
+      padding: 12px 12px 11px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      position:relative;
+      line-height: 1.55;
+      font-size: 14.5px;
+      box-shadow: 0 18px 55px rgba(0,0,0,.30);
+      overflow:hidden;
+      transform-origin: 70% 100%;
+      animation: pop .18s ease-out;
+    }
+    @keyframes pop{
+      from{ transform: scale(.98) translateY(4px); opacity: 0; }
+      to{ transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .bubble.me{
+      background: linear-gradient(135deg, rgba(139,92,246,.92), rgba(109,40,217,.86));
+      border-color: rgba(139,92,246,.30);
+    }
+    .bubble.bot{
+      background: linear-gradient(135deg, rgba(15,47,42,.92), rgba(34,50,58,.86));
+      border-color: rgba(52,211,153,.25);
+    }
+
+    .meta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-top: 8px;
+      color: rgba(234,241,255,.85);
+      opacity:.85;
+      font-size: 12px;
+    }
+    .meta .name{font-weight: 800; letter-spacing:.1px; opacity:.9;}
+    .meta .time{color: rgba(234,241,255,.78); font-variant-numeric: tabular-nums; opacity:.9;}
+
+    .typing{
+      display:inline-flex;
+      align-items:center;
+      gap: 6px;
+      padding: 10px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(52,211,153,.22);
+      background: linear-gradient(135deg, rgba(15,47,42,.92), rgba(34,50,58,.86));
+      max-width: 240px;
+      box-shadow: 0 18px 55px rgba(0,0,0,.28);
+      animation: pop .18s ease-out;
+    }
+    .typing .label{color: rgba(169,183,214,.95); font-size: 12.5px; margin-right: 6px;}
+    .dots{display:inline-flex; align-items:center; gap: 6px;}
+    .dots i{
+      width: 7px; height: 7px; border-radius: 999px;
+      background: rgba(52,211,153,.95);
+      box-shadow: 0 0 0 3px rgba(52,211,153,.12);
+      opacity:.55;
+      animation: bounce 1.05s infinite ease-in-out;
+    }
+    .dots i:nth-child(2){ animation-delay: .12s; }
+    .dots i:nth-child(3){ animation-delay: .24s; }
+    @keyframes bounce{
+      0%, 100% { transform: translateY(0); opacity:.45; }
+      50% { transform: translateY(-4px); opacity: .95; }
+    }
+
+    .composer{
+      position:relative;
+      padding: 12px 12px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      background: rgba(10,14,22,.45);
+      backdrop-filter: blur(12px);
+      display:flex;
+      gap: 10px;
+      align-items:flex-end;
+    }
+    .input{
+      flex: 1 1 auto;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 18px;
+      padding: 12px 12px;
+      color: rgba(234,241,255,.95);
+      outline:none;
+      font-size: 14.5px;
+      line-height: 1.5;
+      min-height: 44px;
+      max-height: 140px;
+      resize: none;
+      box-shadow: 0 18px 55px rgba(0,0,0,.25);
+    }
+    .input::placeholder{ color: rgba(169,183,214,.75); }
+
+    .send{
+      border: 1px solid rgba(139,92,246,.30);
+      background: linear-gradient(135deg, rgba(139,92,246,.22), rgba(34,211,238,.14));
+      color: rgba(234,241,255,.95);
+      border-radius: 999px;
+      padding: 12px 14px;
+      display:inline-flex;
+      align-items:center;
+      gap: 10px;
+      font-weight: 900;
+      letter-spacing:.1px;
+      cursor:pointer;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+      user-select:none;
+      box-shadow: 0 18px 55px rgba(0,0,0,.25);
+      white-space: nowrap;
+    }
+    .send:hover{
+      transform: translateY(-1px);
+      border-color: rgba(139,92,246,.40);
+      background: linear-gradient(135deg, rgba(139,92,246,.28), rgba(34,211,238,.18));
+      box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 18px 55px rgba(0,0,0,.35);
+    }
+    .send:active{ transform: translateY(0) scale(.99); }
+    .send svg{ width:18px; height:18px; opacity:.95; }
+
+    .hint{
+      position:absolute;
+      left: 12px;
+      right: 12px;
+      bottom: -22px;
+      text-align:center;
+      color: rgba(169,183,214,.85);
+      font-size: 12px;
+      pointer-events:none;
+    }
+
+    @media (max-width: 680px){
+      .app{ height: calc(100vh - 28px); border-radius: 20px; }
+      .bubble{ max-width: 90%; }
+      .composer{ padding: 10px; }
+      .messages{ padding: 12px 10px 8px; }
+      .send{ padding: 12px 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="app" role="application" aria-label="AI чат">
+      <header>
+        <div class="title">
+          <div class="badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 2l2.6 7.6H22l-6.1 4.4 2.3 7.6L12 17.2 5.8 21.6l2.3-7.6L2 9.6h7.4L12 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="hgroup">
+            <h1>AI-бот: контент-специалист</h1>
+            <p>v2: меньше повторов • больше контекста • быстрые шаблоны</p>
+          </div>
+        </div>
+        <div class="chip"><span class="dot"></span> online</div>
+      </header>
+
+      <div class="messages" id="messages" aria-label="Сообщения">
+        <div class="day"><span>Сегодня</span></div>
+
+        <div class="row bot">
+          <div class="bubble bot">
+            Привет! Я помогу упаковать и монетизировать твои услуги через контент.
+            <br><br><b>Старт:</b> напиши в 1–2 строках: ниша + услуга №1 + желаемый доход (в ₽/мес).
+            <div class="meta">
+              <span class="name">Бот</span>
+              <span class="time" id="t0"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form class="composer" id="form" autocomplete="off">
+        <textarea class="input" id="input" rows="1" placeholder="Напиши запрос… (например: «нейрофото 10 фото за 5000, хочу 100к/мес»)"></textarea>
+        <button class="send" id="send" type="submit" aria-label="Отправить">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          </svg>
+          Отправить
+        </button>
+        <div class="hint">Enter — отправить • Shift+Enter — новая строка</div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const messages = document.getElementById('messages');
+    const form = document.getElementById('form');
+    const input = document.getElementById('input');
+    document.getElementById('t0').textContent = timeNow();
+
+    function timeNow(){
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      return `${hh}:${mm}`;
+    }
+    function scrollToBottom(){ messages.scrollTop = messages.scrollHeight; }
+    function escapeHtml(str){
+      return str
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+    function addMessage(who, text){
+      const row = document.createElement('div');
+      row.className = 'row ' + (who === 'me' ? 'me' : 'bot');
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble ' + (who === 'me' ? 'me' : 'bot');
+
+      bubble.innerHTML = `
+        ${escapeHtml(text).replace(/\n/g,'<br>')}
+        <div class="meta">
+          <span class="name">${who === 'me' ? 'Вы' : 'Бот'}</span>
+          <span class="time">${timeNow()}</span>
+        </div>
+      `;
+      row.appendChild(bubble);
+      messages.appendChild(row);
+      scrollToBottom();
+    }
+
+    // typing indicator
+    let typingRow = null;
+    function showTyping(){
+      if (typingRow) return;
+      typingRow = document.createElement('div');
+      typingRow.className = 'row bot';
+      typingRow.innerHTML = `
+        <div class="typing" aria-label="Бот печатает">
+          <span class="label">бот печатает</span>
+          <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        </div>
+      `;
+      messages.appendChild(typingRow);
+      scrollToBottom();
+    }
+    function hideTyping(){
+      if (!typingRow) return;
+      typingRow.remove();
+      typingRow = null;
+    }
+
+    // memory (slots)
+    const state = {
+      name: null, niche: null, offer: null, price: null, goal: null,
+      platforms: [], freq: null, pains: null, case: null,
+      lastQuestionKey: null
+    };
+
+    function normalizeMoney(s){
+      const t = s.toLowerCase().replaceAll(',', '.');
+      const m = t.match(/(\d{1,3}(?:[ \u00A0]\d{3})+|\d+)(?:\s*(к|k))?\s*(?:р|₽)?/i);
+      if(!m) return null;
+      const num = m[1].replace(/[ \u00A0]/g,'');
+      let val = parseInt(num, 10);
+      if (m[2]) val *= 1000;
+      return Number.isFinite(val) ? val : null;
+    }
+
+    function extractSlots(text){
+      const t = text.toLowerCase();
+
+      if (/\bольга\b/i.test(text)) state.name = "Ольга";
+
+      const plats = [];
+      if (t.includes('телег') || t.includes('telegram') || t.includes('тг')) plats.push('Telegram');
+      if (t.includes('инст') || t.includes('instagram')) plats.push('Instagram');
+      if (t.includes('вк') || t.includes('vk')) plats.push('VK');
+      if (t.includes('ютуб') || t.includes('youtube')) plats.push('YouTube');
+      if (t.includes('тенчат') || t.includes('tenchat')) plats.push('TenChat');
+      if (plats.length) state.platforms = Array.from(new Set([...state.platforms, ...plats]));
+
+      if (t.includes('нейро') || t.includes('нейрофото') || t.includes('нейрофот') || t.includes('нейродизайн')){
+        state.niche = state.niche || "нейрофотограф / нейродизайнер";
+        if (t.includes('нейрофотосесс')) state.offer = state.offer || "нейрофотосессия";
+        if (t.includes('видео')) state.offer = state.offer || "нейровидео / оживление";
+      }
+
+      if ((t.includes('10') && (t.includes('фото') || t.includes('кад')) && (t.includes('=') || t.includes('за'))) || ((t.includes('₽') || t.includes('р')) && (t.includes('за') || t.includes('=')))){
+        const val = normalizeMoney(text);
+        if (val) state.price = val;
+      }
+
+      if (t.includes('выйти') || t.includes('доход') || t.includes('заработ') || t.includes('цель') || t.includes('хочу')){
+        const val = normalizeMoney(text);
+        if (val && val >= 1000) state.goal = state.goal || val;
+      }
+
+      const fm = t.match(/(\d+)\s*(?:рилс|reels|пост)/);
+      if (fm) state.freq = `${fm[1]} в неделю`;
+
+      if (t.includes('нет заказ') || t.includes('глухо') || t.includes('ноль') || t.includes('не прода') || t.includes('нужно срочно')){
+        state.pains = state.pains || "нет стабильных заказов / срочно нужен рост";
+      }
+
+      if (t.includes('кейс') || t.includes('в итоге') || t.includes('взяли') || t.includes('клиент')){
+        if (text.length > 40) state.case = text;
+      }
+    }
+
+    function wantAction(text){
+      const t = text.toLowerCase();
+      return t.includes('делай') || t.includes('сделай') || t.includes('напиши') || t.includes('составь') || t.includes('давай') || t.includes('вариант');
+    }
+    function isFrustrated(text){
+      const t = text.toLowerCase();
+      return t.includes('я уже писала') || t.includes('повтор') || t.includes('сколько можно') || t.includes('бесит');
+    }
+
+    function nextMissing(){
+      if (!state.offer) return { key:'offer', q:'Какая услуга №1 сейчас в приоритете (нейрофото / нейровидео / агенты)?' };
+      if (!state.price) return { key:'price', q:'Сколько стоит твой основной продукт? (например: «10 фото = 5000 ₽»)' };
+      if (!state.goal)  return { key:'goal',  q:'Какая цель по выручке на 30 дней? (например: 100 000 ₽)' };
+      if (state.platforms.length === 0) return { key:'platforms', q:'Где делаем упор ближайшие 2 недели: Telegram или Instagram?' };
+      if (!state.freq) return { key:'freq', q:'Какой ритм тебе комфортен: сколько Reels и сколько постов в неделю?' };
+      return null;
+    }
+
+    function fmt(n){
+      return String(n).replace(/\B(?=(\d{3})+(?!\d))/g," ");
+    }
+
+    function summarizeKnown(){
+      const parts = [];
+      if (state.name) parts.push(`Имя: ${state.name}`);
+      if (state.niche) parts.push(`Позиционирование: ${state.niche}`);
+      if (state.offer) parts.push(`Услуга №1: ${state.offer}`);
+      if (state.price) parts.push(`Цена: ${fmt(state.price)} ₽`);
+      if (state.goal)  parts.push(`Цель: ${fmt(state.goal)} ₽/мес`);
+      if (state.platforms.length) parts.push(`Площадки: ${state.platforms.join(', ')}`);
+      if (state.freq) parts.push(`Частота: ${state.freq}`);
+      return parts.length ? parts.join(' • ') : "Пока контекста мало — давай соберём базу.";
+    }
+
+    function build3PostVariants(){
+      const price = state.price ? fmt(state.price) + " ₽" : "стоимость";
+      const offer = state.offer || "услуга";
+      const niche = state.niche || "эксперт";
+      const goal = state.goal ? fmt(state.goal) + " ₽/мес" : "рост";
+      const platform = state.platforms.includes('Telegram') ? 'Telegram' : (state.platforms[0] || 'соцсетях');
+
+      const v1 = `Вариант 1 (мягкий)\n\nХук: «Если кажется, что контент “не продаёт” — чаще всего проблема не в тебе, а в упаковке.»\n\nБоль: ты стараешься, постишь, а заявок мало — потому что людям неясно, *за что* платить и *почему именно тебе*.\n\nПример: я как ${niche} делаю ${offer}: подбираю образы/стиль так, чтобы визуал выглядел дороже и сразу объяснял ценность.\n\nРешение: начни с 3 шагов — 1) оффер в 1 фразу, 2) 3 кейса/до‑после, 3) 1 продающий пост в неделю.\n\nCTA: хочешь — напишу тебе 5 хука + структуру продающего поста под твой аккаунт в ${platform}. Напиши «хочу структуру».`;
+
+      const v2 = `Вариант 2 (уверенный)\n\nХук: «Контент без оффера — как витрина без ценника: красиво, но не покупают.»\n\nБоль: подписчики есть, охваты есть, а заявок нет — потому что у человека нет простого ответа: “что я получу и за сколько?”.\n\nПример: мой основной продукт — ${offer}. Пак: 10 фото = ${price}. Это “быстрый апгрейд” визуала под экспертность и продажи.\n\nРешение: 1 пост‑оффер + 1 пост‑кейс + 2 Reels “боль→решение” в неделю. Через 14 дней уже видно рост отклика.\n\nCTA: хочешь, соберу тебе сетку на 2 недели и 10 тем Reels под цель ${goal}? Напиши «сетку».`;
+
+      const v3 = `Вариант 3 (дерзкий)\n\nХук: «Если твой визуал как у всех — тебя будут сравнивать по цене. И это всегда проигрыш.»\n\nБоль: рынок шумный. Клиент покупает не “фото”, а *ощущение бренда*: уровень, вкус, уверенность.\n\nПример: ${offer} — это не “картинки”. Это упаковка, которая делает тебя заметнее и дороже в глазах клиента.\n\nРешение: покажи 1) до/после, 2) процесс (как ты создаёшь), 3) результат клиента (как это помогло).\n\nCTA: хочешь 3 сценария Reels «вау‑эффект» + один продающий прогрев на 5 сторис? Напиши «сценарии».`;
+
+      return `Ок, делаю 👇\n\n${v1}\n\n— — —\n\n${v2}\n\n— — —\n\n${v3}`;
+    }
+
+    function chooseReply(userText){
+      if (isFrustrated(userText)){
+        const miss = nextMissing();
+        if (miss){
+          return `Поняла 🙏 Ты права — не буду повторяться.\n\nЧто я уже зафиксировал(а): ${summarizeKnown()}\n\nЧтобы двигаться дальше быстро, мне не хватает одного пункта: ${miss.q}`;
+        }
+        return `Поняла 🙏 Ты права — не буду повторяться.\n\nЧто я уже зафиксировал(а): ${summarizeKnown()}\n\nСкажи, что делаем первым: 1) оффер, 2) контент‑план на 14 дней, 3) продающие посты/прогрев?`;
+      }
+
+      if (wantAction(userText)){
+        const t = userText.toLowerCase();
+        if (t.includes('пост') || t.includes('вариант') || t.includes('делай') || t.includes('пиши')){
+          const miss = nextMissing();
+          if (miss && (miss.key === 'offer' || miss.key === 'price' || miss.key === 'platforms')){
+            return `Сделаю. Чтобы получилось максимально “в точку”, уточни одно: ${miss.q}`;
+          }
+          return build3PostVariants();
+        }
+      }
+
+      const miss = nextMissing();
+      if (miss){
+        if (state.lastQuestionKey === miss.key){
+          const alt = {
+            offer: "Какая услуга сейчас приносит деньги быстрее всего? (нейрофото / нейровидео / агенты)",
+            price: "А цену за основной пакет напиши одной строкой (например: «10 фото — 5000 ₽»).",
+            goal: "Какая цель по выручке на ближайшие 30 дней — одной цифрой?",
+            platforms: "Где проще продавать прямо сейчас: Telegram или Instagram? Можно выбрать одну.",
+            freq: "Сколько контента реально потянешь: Reels/посты в неделю? (например: 3 Reels + 1 карусель)"
+          };
+          return alt[miss.key] || miss.q;
+        }
+        state.lastQuestionKey = miss.key;
+        return miss.q + "\n\n(Я фиксирую ответы, чтобы не спрашивать одно и то же.)";
+      }
+
+      return `Отлично. Я зафиксировал(а): ${summarizeKnown()}\n\nПредлагаю план на 7 дней: 1) оффер‑пост, 2) пост‑кейс, 3) 3 Reels по боли, 4) 1 прогрев‑серия сторис. С чего начнём?`;
+    }
+
+    function autosize(){
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 140) + 'px';
+    }
+
+    input.addEventListener('input', autosize);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey){
+        e.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+
+      addMessage('me', text);
+      input.value = '';
+      autosize();
+
+      extractSlots(text);
+
+      showTyping();
+      const delay = 520 + Math.random() * 780;
+
+      setTimeout(() => {
+        hideTyping();
+        addMessage('bot', chooseReply(text));
+      }, delay);
+    });
+
+    scrollToBottom();
+    autosize();
+  </script>
+</body>
+</html>

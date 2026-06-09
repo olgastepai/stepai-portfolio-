@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI-диагностика от Ольги</title>
+  <style>
+    :root {
+      --bg: #0f0b1f;
+      --card: rgba(255, 255, 255, 0.08);
+      --card-strong: rgba(255, 255, 255, 0.13);
+      --text: #ffffff;
+      --muted: rgba(255, 255, 255, 0.72);
+      --accent: #ff7ad9;
+      --accent-2: #7c5cff;
+      --accent-3: #37e7c4;
+      --danger: #ff5470;
+      --radius: 24px;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(255, 122, 217, 0.25), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(55, 231, 196, 0.18), transparent 30%),
+        linear-gradient(135deg, #0f0b1f 0%, #1a1238 55%, #0d1024 100%);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .quiz-shell {
+      width: 100%;
+      max-width: 840px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .brand-name {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2), var(--accent-3));
+      box-shadow: 0 0 28px rgba(255, 122, 217, 0.35);
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(18px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      overflow: hidden;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
+    h1, h2 {
+      margin: 0;
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+    }
+
+    h1 {
+      font-size: clamp(34px, 6vw, 62px);
+      max-width: 760px;
+    }
+
+    h2 {
+      font-size: clamp(28px, 4vw, 44px);
+    }
+
+    p {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.55;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 22px;
+      align-items: stretch;
+      margin-top: 26px;
+    }
+
+    .mini-panel {
+      background: var(--card-strong);
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .mini-panel strong {
+      display: block;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    .mini-panel ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .btn {
+      width: 100%;
+      border: 0;
+      border-radius: 18px;
+      padding: 17px 20px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #120d24;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--accent), #ffc36e);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+      box-shadow: 0 14px 36px rgba(255, 122, 217, 0.28);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 44px rgba(255, 122, 217, 0.38);
+    }
+
+    .btn.secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+      box-shadow: none;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .start-btn {
+      margin-top: 24px;
+      max-width: 360px;
+    }
+
+    .progress-wrap {
+      margin-bottom: 24px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .progress {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent-3));
+      transition: width 0.35s ease;
+    }
+
+    .question-hint {
+      color: var(--muted);
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+      margin-top: 26px;
+    }
+
+    .option {
+      text-align: left;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      background: rgba(255, 255, 255, 0.085);
+      color: var(--text);
+      border-radius: 18px;
+      padding: 18px 18px;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1.35;
+      transition: transform 0.16s ease, background 0.16s ease, border 0.16s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.26);
+    }
+
+    .form {
+      display: grid;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .input {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.09);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 16px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .input::placeholder {
+      color: rgba(255, 255, 255, 0.48);
+    }
+
+    .input:focus {
+      border-color: rgba(255, 122, 217, 0.8);
+      box-shadow: 0 0 0 4px rgba(255, 122, 217, 0.12);
+    }
+
+    .result-card {
+      display: grid;
+      gap: 18px;
+      margin-top: 24px;
+    }
+
+    .result-main {
+      padding: 22px;
+      border-radius: 22px;
+      background:
+        linear-gradient(135deg, rgba(255, 122, 217, 0.16), rgba(124, 92, 255, 0.16)),
+        rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .result-label {
+      color: var(--accent-3);
+      font-weight: 800;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    .result-title {
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      margin: 0;
+    }
+
+    .result-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .result-list li {
+      padding: 15px 16px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.085);
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .result-list strong {
+      color: var(--text);
+    }
+
+    .note {
+      margin-top: 16px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.55);
+    }
+
+    .tiny {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.55);
+      line-height: 1.45;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        align-items: flex-start;
+        padding: 14px;
+      }
+
+      .card {
+        padding: 22px;
+        border-radius: 22px;
+      }
+
+      .brand {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-row {
+        grid-template-columns: 1fr;
+      }
+
+      .start-btn {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="quiz-shell">
+    <div class="brand">
+      <div class="brand-name">
+        <div class="logo"></div>
+        <span>Ольга · нейрофотосессии · нейровидео · ИИ-агенты · вайб-кодинг</span>
+      </div>
+      <span>AI-диагностика за 2 минуты</span>
+    </div>
+
+    <section class="card" id="app"></section>
+  </main>
+
+  <script>
+    const TELEGRAM_LINK = "https://t.me/your_username"; 
+    // Замените your_username на ваш Telegram, например: https://t.me/olga_ai
+
+    const quiz = [
+      {
+        question: "Какая задача сейчас для вас самая важная?",
+        hint: "Выберите то, что даст вам самый заметный эффект в ближайшее время.",
+        options: [
+          { text: "Выглядеть дороже и сильнее упаковать личный бренд", scores: { photo: 3, video: 1 } },
+          { text: "Делать больше вовлекающего контента и видео", scores: { video: 3, photo: 1 } },
+          { text: "Автоматизировать ответы, заявки и рутину", scores: { agent: 3 } },
+          { text: "Быстро собрать сайт, квиз, бот или мини-сервис", scores: { code: 3 } },
+          { text: "Понять, какой AI-инструмент вообще нужен бизнесу", scores: { system: 3, agent: 1, code: 1 } }
+        ]
+      },
+      {
+        question: "Что сейчас больше всего тормозит рост?",
+        hint: "Этот ответ поможет подобрать не просто красивый инструмент, а полезное решение.",
+        options: [
+          { text: "Нет сильного визуала для соцсетей, сайта и рекламы", scores: { photo: 3 } },
+          { text: "Контент есть, но он не цепляет и не выделяет меня", scores: { video: 3, photo: 1 } },
+          { text: "Много повторяющихся сообщений и ручных ответов", scores: { agent: 3 } },
+          { text: "Есть идея продукта, но нет быстрого прототипа", scores: { code: 3 } },
+          { text: "Много разрозненных процессов, хочется собрать систему", scores: { system: 3, agent: 1 } }
+        ]
+      },
+      {
+        question: "Кто вы по формату проекта?",
+        hint: "Так результат будет ближе к вашей реальности.",
+        options: [
+          { text: "Эксперт, наставник, коуч, психолог или консультант", scores: { photo: 2, video: 1, system: 1 } },
+          { text: "Предприниматель или владелец услуг", scores: { agent: 2, code: 1, system: 1 } },
+          { text: "Блогер, автор, креатор", scores: { photo: 2, video: 2 } },
+          { text: "Онлайн-школа, клуб или образовательный проект", scores: { agent: 2, code: 2, system: 1 } },
+          { text: "Пока тестирую новую идею", scores: { code: 3, system: 1 } }
+        ]
+      },
+      {
+        question: "Что вы хотите получить на выходе?",
+        hint: "Здесь выбираем формат результата, который легче всего внедрить.",
+        options: [
+          { text: "Пакет AI-фото для профиля, сайта, баннеров и прогревов", scores: { photo: 3 } },
+          { text: "Нейровидео для Reels, рекламы, презентации или запуска", scores: { video: 3 } },
+          { text: "ИИ-агента, который общается с клиентами и собирает заявки", scores: { agent: 3 } },
+          { text: "Рабочий прототип: квиз, лендинг, бот, калькулятор или MVP", scores: { code: 3 } },
+          { text: "Связку из нескольких AI-инструментов под мою воронку", scores: { system: 3 } }
+        ]
+      },
+      {
+        question: "Где вы планируете использовать результат?",
+        hint: "Можно выбрать ближайший сценарий, даже если площадок несколько.",
+        options: [
+          { text: "Instagram, Telegram, личный бренд, аватарки и обложки", scores: { photo: 2, video: 1 } },
+          { text: "Reels, Shorts, сторис, презентации и рекламные ролики", scores: { video: 3 } },
+          { text: "Telegram, сайт, CRM, мессенджеры, обработка заявок", scores: { agent: 3 } },
+          { text: "Отдельная страница, Tilda, сайт, бот или интерактив", scores: { code: 3 } },
+          { text: "Хочу встроить AI в путь клиента от первого касания до заявки", scores: { system: 3, agent: 1 } }
+        ]
+      },
+      {
+        question: "Какой темп вам комфортен?",
+        hint: "Это не обязательство, а ориентир для рекомендации.",
+        options: [
+          { text: "Хочу быстрый заметный результат для упаковки", scores: { photo: 2, video: 1 } },
+          { text: "Хочу быстро усилить контент и охваты", scores: { video: 2, photo: 1 } },
+          { text: "Хочу системно разгрузить себя или команду", scores: { agent: 2, system: 1 } },
+          { text: "Хочу быстро проверить идею без долгой разработки", scores: { code: 2 } },
+          { text: "Хочу понять стратегию и собрать AI-систему постепенно", scores: { system: 3 } }
+        ]
+      }
+    ];
+
+    const results = {
+      photo: {
+        label: "Ваш AI-вектор",
+        title: "Нейрофотосессия для личного бренда",
+        subtitle: "Вам сейчас важнее всего усилить визуальное впечатление: выглядеть дороже, понятнее и заметнее в соцсетях, на сайте и в продажах.",
+        bullets: [
+          ["Что сделать первым", "Собрать 3–5 визуальных образов под вашу нишу: экспертный, премиальный, теплый, креативный или статусный."],
+          ["Где использовать", "Аватар, шапка профиля, обложки продуктов, баннеры, лендинг, Telegram, прогревы и рекламные креативы."],
+          ["Лучший оффер", "Пакет AI-фото с подбором образа, локаций, стилистики и готовыми кадрами под вашу воронку."]
+        ],
+        cta: "Хочу идеи для нейрофотосессии"
+      },
+      video: {
+        label: "Ваш AI-вектор",
+        title: "Нейровидео для контента и продаж",
+        subtitle: "Вам подойдет формат, который быстро добавляет динамику, эмоцию и вау-эффект в коммуникацию бренда.",
+        bullets: [
+          ["Что сделать первым", "Выбрать 1–2 сценария: экспертный ролик, промо, Reels, видео-презентация услуги или визуальный трейлер запуска."],
+          ["Где использовать", "Reels, Shorts, сторис, рекламные объявления, презентации, обложки запусков и прогревающие посты."],
+          ["Лучший оффер", "Нейровидео под конкретную цель: привлечь внимание, объяснить продукт, усилить запуск или повысить доверие."]
+        ],
+        cta: "Обсудить нейровидео"
+      },
+      agent: {
+        label: "Ваш AI-вектор",
+        title: "ИИ-агент для бизнеса",
+        subtitle: "У вас есть потенциал быстро снизить ручную рутину: ответы клиентам, квалификация заявок, запись, напоминания и первичная консультация.",
+        bullets: [
+          ["Что сделать первым", "Описать частые вопросы, путь клиента и действия, которые агент должен выполнять до передачи заявки вам."],
+          ["Где использовать", "Telegram, сайт, CRM, мессенджеры, форма заявки, база знаний, внутренняя поддержка или отдел продаж."],
+          ["Лучший оффер", "ИИ-агент, который отвечает, уточняет потребность, сегментирует лида и передает горячие заявки."]
+        ],
+        cta: "Хочу карту ИИ-агента"
+      },
+      code: {
+        label: "Ваш AI-вектор",
+        title: "Вайб-кодинг: квиз, бот, лендинг или MVP",
+        subtitle: "Вам нужен быстрый рабочий прототип, который можно показать аудитории, собрать заявки или проверить идею без долгой разработки.",
+        bullets: [
+          ["Что сделать первым", "Выбрать один компактный формат: квиз, калькулятор, интерактивный лендинг, Telegram-бот или мини-сервис."],
+          ["Где использовать", "Сайт, Tilda, отдельная HTML-страница, Telegram, запуск продукта, лид-магнит или тест новой гипотезы."],
+          ["Лучший оффер", "Быстрый MVP через вайб-кодинг: структура, дизайн, логика, код и понятный сценарий для пользователя."]
+        ],
+        cta: "Хочу идею MVP"
+      },
+      system: {
+        label: "Ваш AI-вектор",
+        title: "AI-система для бренда и воронки",
+        subtitle: "Вам лучше подойдет не один инструмент, а связка: визуал, видео, автоматизация и интерактив, собранные вокруг пути клиента.",
+        bullets: [
+          ["Что сделать первым", "Провести короткую AI-диагностику: где нужен визуал, где видео, где агент, а где интерактивный лид-магнит."],
+          ["Где использовать", "Личный бренд, контент, заявки, консультации, продажи, обучение, клиентский сервис и автоматизация рутины."],
+          ["Лучший оффер", "Персональная AI-карта: какие инструменты внедрять первыми и какой даст самый быстрый эффект."]
+        ],
+        cta: "Хочу AI-карту"
+      }
+    };
+
+    let current = 0;
+    let answers = [];
+    let scores = {
+      photo: 0,
+      video: 0,
+      agent: 0,
+      code: 0,
+      system: 0
+    };
+
+    const app = document.getElementById("app");
+
+    function track(eventName, params = {}) {
+      console.log("Analytics event:", eventName, params);
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({
+        event: eventName,
+        ...params
+      });
+    }
+
+    function renderStart() {
+      app.innerHTML = `
+        <div class="badge">✨ Персональная AI-диагностика</div>
+        <h1>Что быстрее усилит ваш бренд или бизнес: нейрофото, нейровидео, ИИ-агент или вайб-кодинг?</h1>
+        <p>
+          Ответьте на 6 коротких вопросов и получите рекомендацию, какой AI-инструмент даст вам самый понятный первый шаг.
+        </p>
+
+        <div class="hero-grid">
+          <div class="mini-panel">
+            <strong>После квиза вы получите:</strong>
+            <ul>
+              <li>персональный AI-вектор;</li>
+              <li>идею первого внедрения;</li>
+              <li>понятный следующий шаг для заявки.</li>
+            </ul>
+          </div>
+
+          <div class="mini-panel">
+            <strong>Подходит для:</strong>
+            <ul>
+              <li>экспертов и блогеров;</li>
+              <li>предпринимателей;</li>
+              <li>онлайн-школ и проектов услуг.</li>
+            </ul>
+          </div>
+        </div>
+
+        <button class="btn start-btn" onclick="startQuiz()">Начать диагностику</button>
+        <div class="note">Без сложных вопросов. Результат появится сразу в браузере.</div>
+      `;
+    }
+
+    function startQuiz() {
+      current = 0;
+      answers = [];
+      scores = {
+        photo: 0,
+        video: 0,
+        agent: 0,
+        code: 0,
+        system: 0
+      };
+      track("quiz_start");
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const item = quiz[current];
+      const progress = Math.round((current / quiz.length) * 100);
+
+      app.innerHTML = `
+        <div class="progress-wrap">
+          <div class="progress-top">
+            <span>Вопрос ${current + 1} из ${quiz.length}</span>
+            <span>${progress}%</span>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" style="width: ${progress}%"></div>
+          </div>
+        </div>
+
+        <h2>${item.question}</h2>
+        <p class="question-hint">${item.hint}</p>
+
+        <div class="options">
+          ${item.options.map((option, index) => `
+            <button class="option" onclick="selectOption(${index})">
+              ${option.text}
+            </button>
+          `).join("")}
+        </div>
+
+        <div class="note">Выберите один вариант. Его можно будет изменить после перезапуска квиза.</div>
+      `;
+    }
+
+    function selectOption(index) {
+      const item = quiz[current];
+      const selected = item.options[index];
+
+      answers.push({
+        question: item.question,
+        answer: selected.text
+      });
+
+      Object.keys(selected.scores).forEach(key => {
+        scores[key] += selected.scores[key];
+      });
+
+      track("quiz_answer", {
+        question_number: current + 1,
+        answer: selected.text
+      });
+
+      current++;
+
+      if (current < quiz.length) {
+        renderQuestion();
+      } else {
+        renderLeadForm();
+      }
+    }
+
+    function renderLeadForm() {
+      app.innerHTML = `
+        <div class="progress-wrap">
+          <div class="progress-top">
+            <span>Готово</span>
+            <span>100%</span>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" style="width: 100%"></div>
+          </div>
+        </div>
+
+        <div class="badge">🎯 Результат почти готов</div>
+        <h2>Куда отправить вашу AI-рекомендацию?</h2>
+        <p>
+          Для демо результат можно посмотреть сразу. В рабочей версии эти данные можно отправлять в Google Sheets, CRM, Telegram или email-сервис.
+        </p>
+
+        <form class="form" onsubmit="submitLead(event)">
+          <input class="input" id="leadName" type="text" placeholder="Ваше имя" />
+          <input class="input" id="leadContact" type="text" placeholder="Telegram или email" />
+          <button class="btn" type="submit">Получить мой результат</button>
+        </form>
+
+        <div class="btn-row">
+          <button class="btn secondary" onclick="renderResult()">Посмотреть без контакта</button>
+          <button class="btn secondary" onclick="startQuiz()">Пройти заново</button>
+        </div>
+
+        <div class="note">
+          Демо-версия не отправляет данные на сервер. Контакт сохраняется только в браузере через localStorage.
+        </div>
+      `;
+    }
+
+    function submitLead(event) {
+      event.preventDefault();
+
+      const name = document.getElementById("leadName").value.trim();
+      const contact = document.getElementById("leadContact").value.trim();
+
+      localStorage.setItem("olga_ai_quiz_lead", JSON.stringify({
+        name,
+        contact,
+        answers,
+        scores,
+        createdAt: new Date().toISOString()
+      }));
+
+      track("lead_submit", {
+        name_provided: Boolean(name),
+        contact_provided: Boolean(contact),
+        top_result: getTopResultKey()
+      });
+
+      renderResult();
+    }
+
+    function getTopResultKey() {
+      return Object.entries(scores)
+        .sort((a, b) => b[1] - a[1])[0][0];
+    }
+
+    function renderResult() {
+      const topKey = getTopResultKey();
+      const result = results[topKey];
+
+      track("quiz_result_view", {
+        result: topKey,
+        scores: JSON.stringify(scores)
+      });
+
+      app.innerHTML = `
+        <div class="badge">✨ Ваш персональный результат</div>
+
+        <div class="result-card">
+          <div class="result-main">
+            <div class="result-label">${result.label}</div>
+            <h2 class="result-title">${result.title}</h2>
+            <p>${result.subtitle}</p>
+          </div>
+
+          <ul class="result-list">
+            ${result.bullets.map(item => `
+              <li><strong>${item[0]}:</strong> ${item[1]}</li>
+            `).join("")}
+          </ul>
+
+          <div class="mini-panel">
+            <strong>Что написать Ольге:</strong>
+            <p id="messageText">
+              Ольга, здравствуйте! Я прошла AI-диагностику. Мой результат: «${result.title}». Хочу понять, какой первый шаг подойдет под мой проект.
+            </p>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn" onclick="openTelegram('${result.title}')">${result.cta}</button>
+            <button class="btn secondary" onclick="copyResult()">Скопировать результат</button>
+          </div>
+
+          <button class="btn secondary" onclick="startQuiz()">Пройти заново</button>
+
+          <div class="tiny">
+            Для полноценной версии можно подключить отправку заявок в Telegram, Google Sheets, amoCRM, GetCourse, Notion или email-сервис через backend или Make/Zapier.
+          </div>
+        </div>
+      `;
+    }
+
+    function openTelegram(resultTitle) {
+      const message = encodeURIComponent(
+        `Ольга, здравствуйте! Я прошла AI-диагностику. Мой результат: «${resultTitle}». Хочу понять, какой первый шаг подойдет под мой проект.`
+      );
+
+      track("telegram_click", {
+        result: resultTitle
+      });
+
+      window.open(`${TELEGRAM_LINK}?text=${message}`, "_blank");
+    }
+
+    function copyResult() {
+      const message = document.getElementById("messageText").innerText.trim();
+
+      navigator.clipboard.writeText(message).then(() => {
+        alert("Результат скопирован. Можно отправить его Ольге в Telegram.");
+        track("result_copy");
+      }).catch(() => {
+        alert("Не удалось скопировать автоматически. Выделите текст вручную.");
+      });
+    }
+
+    renderStart();
+  </script>
+</body>
+</html>

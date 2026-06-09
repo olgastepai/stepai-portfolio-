@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<!--
+  Главная страница (лендинг) — Помощник учителя истории Алтайского края
+  Приложение: app.html
+  Запуск: ЗАПУСК_HTML.bat → http://localhost:8080
+-->
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Бесплатный помощник для учителя истории: готовые конспекты уроков по истории Алтая и Алтайского края"
+    />
+    <title>Помощник учителя истории Алтайского края</title>
+    <link rel="stylesheet" href="css/landing.css" />
+  </head>
+  <body class="landing-body">
+    <header class="landing-hero">
+      <h1>📚 Помощник учителя истории Алтайского края</h1>
+      <p class="lead">
+        Готовьте полноценные материалы к урокам за несколько минут: цели и задачи,
+        текст для объяснения, вопросы, задания, домашняя работа и план записи на доске.
+      </p>
+      <div class="hero-actions">
+        <a href="app.html" class="btn-hero btn-hero-primary">Открыть приложение →</a>
+        <a href="#kak-rabotat" class="btn-hero btn-hero-outline">Как пользоваться</a>
+      </div>
+    </header>
+
+    <div class="landing-wrap">
+      <section class="features" aria-label="Возможности">
+        <article class="feature">
+          <h3>📖 Банк тем</h3>
+          <p>Три готовые темы по региональной истории с проверенной структурой урока.</p>
+        </article>
+        <article class="feature">
+          <h3>✏️ Своя тема</h3>
+          <p>Вставьте свой материал — приложение соберёт конспект по тому же шаблону.</p>
+        </article>
+        <article class="feature">
+          <h3>💾 Скачивание</h3>
+          <p>Готовый урок сохраняется в файл TXT или отправляется на печать.</p>
+        </article>
+      </section>
+
+      <section class="topics-list">
+        <h2 class="section-title">Темы в банке</h2>
+        <ul>
+          <li><strong>Алтай: земля, люди, история</strong> — вводный урок</li>
+          <li><strong>Как появился Алтайский край</strong> — административное оформление региона</li>
+          <li><strong>Освоение Алтая русскими людьми</strong> — XVII–XVIII века</li>
+        </ul>
+      </section>
+
+      <section id="kak-rabotat">
+        <h2 class="section-title">Как работать в приложении</h2>
+        <ol class="steps">
+          <li class="step-card">
+            <span class="step-num">1</span>
+            <div>
+              <strong>Запустите сайт на компьютере</strong>
+              <p>
+                В папке <code>history_teacher_app</code> дважды щёлкните
+                <code>ЗАПУСК_HTML.bat</code>. В браузере откроется
+                <code>http://localhost:8080</code> — не закрывайте чёрное окно.
+              </p>
+            </div>
+          </li>
+          <li class="step-card">
+            <span class="step-num">2</span>
+            <div>
+              <strong>Нажмите «Открыть приложение»</strong>
+              <p>
+                Выберите режим: <em>Тема из банка</em> или <em>Своя тема</em>. Укажите класс,
+                тип урока и продолжительность (40 или 45 минут).
+              </p>
+            </div>
+          </li>
+          <li class="step-card">
+            <span class="step-num">3</span>
+            <div>
+              <strong>Создайте конспект</strong>
+              <p>
+                Кнопка «Создать урок» — ниже появится готовый текст. Проверьте, при необходимости
+                отредактируйте в поле результата.
+              </p>
+            </div>
+          </li>
+          <li class="step-card">
+            <span class="step-num">4</span>
+            <div>
+              <strong>Сохраните или распечатайте</strong>
+              <p>«Скачать TXT» — файл на компьютер. «Печать» — сразу на принтер.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="launch-box">
+        <h2 class="section-title">Две версии программы</h2>
+        <p>
+          <strong>HTML (этот сайт)</strong> — <code>ЗАПУСК_HTML.bat</code> →
+          <code>http://localhost:8080</code>. Текст с сайтов вставляется вручную.
+        </p>
+        <p>
+          <strong>Полная (Streamlit)</strong> — <code>ЗАПУСК.bat</code> →
+          <code>http://localhost:8501</code>. Есть загрузка статьи по ссылке с интернета.
+        </p>
+        <p>
+          Подробнее: файлы <code>КАК_ОТКРЫТЬ_САЙТ.md</code> и <code>КАК_ЗАПУСТИТЬ.txt</code> в
+          папке проекта.
+        </p>
+      </section>
+
+      <p style="text-align: center; margin-top: 2rem">
+        <a href="app.html" class="btn-hero btn-hero-primary" style="color: #1e3a5f">
+          Перейти к приложению →
+        </a>
+      </p>
+    </div>
+
+    <footer class="landing-footer">
+      <p>История Алтая и Алтайского края · 6–9 класс · региональный курс</p>
+      <p>Открытое учебное приложение для учителей</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,247 @@
+/* ==========================================================================
+   Помощник учителя истории Алтайского края — стили HTML-версии
+   ========================================================================== */
+
+:root {
+  --bg: #f0ebe3;
+  --card: #ffffff;
+  --accent: #2b4c7e;
+  --accent-light: #4a6fa5;
+  --border: #cfc9bc;
+  --text: #1a202c;
+  --muted: #5a6578;
+  --radius: 10px;
+  --shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+}
+
+.site-header {
+  background: linear-gradient(120deg, var(--accent), var(--accent-light));
+  color: #fff;
+  padding: 1.25rem 1rem 1.5rem;
+}
+
+.header-inner {
+  max-width: 860px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.back-link {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.back-link:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.site-header h1 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.25rem, 4vw, 1.65rem);
+}
+
+.tagline {
+  margin: 0;
+  opacity: 0.95;
+  font-size: 0.95rem;
+}
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2.5rem;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.35rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+}
+
+.card h2 {
+  margin-top: 0;
+  color: var(--accent);
+  font-size: 1.15rem;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin: 0.85rem 0 0.3rem;
+  font-size: 0.92rem;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 88px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 560px) {
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mode-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.mode-tabs button {
+  flex: 1;
+  padding: 0.7rem;
+  border: 2px solid var(--accent);
+  background: #fff;
+  color: var(--accent);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.mode-tabs button.active,
+.mode-tabs button:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-primary {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background: #1e3a5f;
+}
+
+.btn-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.btn-secondary {
+  padding: 0.55rem 1rem;
+  background: #edf2f7;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.preview-box {
+  background: #f7fafc;
+  border-left: 4px solid var(--accent-light);
+  padding: 0.65rem 0.85rem;
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+}
+
+.alert {
+  padding: 0.85rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.alert-info {
+  background: #ebf8ff;
+  border: 1px solid #90cdf4;
+}
+
+.alert-warn {
+  background: #fffaf0;
+  border: 1px solid #f6ad55;
+}
+
+.url-box {
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+#lesson-output {
+  width: 100%;
+  min-height: 380px;
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.site-footer {
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.site-footer a {
+  color: var(--accent);
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media print {
+  .site-header,
+  .mode-tabs,
+  .card:not(#result-section),
+  .site-footer,
+  .btn-row {
+    display: none !important;
+  }
+  #result-section {
+    display: block !important;
+    box-shadow: none;
+    border: none;
+  }
+}

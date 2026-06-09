@@ -1,0 +1,38 @@
+# Секреты и служебные файлы — никогда не публиковать
+**/github-recovery-codes.txt
+**/*recovery-codes*
+.env
+.env.*
+
+# Временные и черновые заметки
+*.log
+*.tmp
+*~
+
+# ОС
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Редакторы и IDE
+.vscode/
+.idea/
+.cursor/
+*.code-workspace
+
+# Черновики (не используются на сайте)
+Olga_Stepchenko_Portfolio.html
+
+# Лишние исходники изображений (на сайте используются только .jpg)
+images/ChatGPT*.png
+
+# Python (для вложенного проекта history_teacher_app)
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+venv/
+.venv/
+*.egg-info/
+.pytest_cache/

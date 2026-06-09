@@ -1,0 +1,730 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1, user-scalable=no" />
+  <title>Ловим монетки — мини‑игра</title>
+  <meta name="description" content="Браузерная мини‑игра: ловим падающие золотые и серебряные монетки корзиной. 60 секунд, очки, рестарт." />
+  <style>
+    :root{
+      --bg1:#0b0f17;
+      --bg2:#090c14;
+      --text:#eaf1ff;
+      --muted:#a9b7d6;
+
+      /* palette */
+      --lilac:#8b5cf6;
+      --lilac2:#6d28d9;
+      --emerald:#34d399;
+      --emerald2:#0f2f2a;
+      --sky:#22d3ee;
+      --silver:#d7dee9;
+      --soft:#cfd6e2;
+
+      --shadow: 0 28px 90px rgba(0,0,0,.55);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      background:
+        radial-gradient(900px 520px at 18% 10%, rgba(139,92,246,.22), transparent 60%),
+        radial-gradient(820px 560px at 82% 18%, rgba(34,211,238,.18), transparent 60%),
+        radial-gradient(760px 520px at 50% 96%, rgba(52,211,153,.12), transparent 60%),
+        linear-gradient(180deg, var(--bg2) 0%, var(--bg1) 45%, var(--bg2) 100%);
+      overflow:hidden;
+      touch-action:none;
+    }
+
+    .noise{
+      pointer-events:none;
+      position:fixed; inset:0;
+      background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="140" height="140"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".75" numOctaves="3" stitchTiles="stitch"/></filter><rect width="140" height="140" filter="url(%23n)" opacity=".25"/></svg>');
+      mix-blend-mode: overlay;
+      opacity:.055;
+      z-index:-1;
+    }
+
+    .wrap{
+      height:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding: 16px;
+    }
+
+    .shell{
+      width:min(980px, 100%);
+      height:min(760px, calc(100vh - 32px));
+      border-radius: 24px;
+      border:1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      backdrop-filter: blur(14px);
+      position:relative;
+      display:flex;
+      flex-direction:column;
+    }
+    .shell::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(600px 260px at 18% 0%, rgba(139,92,246,.22), transparent 60%),
+        radial-gradient(620px 260px at 82% 0%, rgba(34,211,238,.18), transparent 62%);
+      opacity:.9;
+      pointer-events:none;
+      mask: linear-gradient(#000, transparent 70%);
+    }
+
+    header{
+      position:relative;
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      background: rgba(10,14,22,.40);
+      backdrop-filter: blur(12px);
+    }
+    .left{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      min-width:0;
+    }
+    .badge{
+      width: 38px;
+      aspect-ratio: 1/1;
+      border-radius: 14px;
+      display:grid;
+      place-items:center;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(120px 120px at 28% 28%, rgba(255,255,255,.12), transparent 55%),
+        linear-gradient(135deg, rgba(139,92,246,.28), rgba(34,211,238,.18));
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      flex: 0 0 auto;
+    }
+    .badge svg{width:20px;height:20px;opacity:.95}
+
+    .hgroup{min-width:0}
+    .hgroup h1{
+      margin:0;
+      font-size: 15.5px;
+      letter-spacing: -.2px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .hgroup p{
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hud{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+      color: rgba(234,241,255,.92);
+      font-size: 12.5px;
+      font-variant-numeric: tabular-nums;
+      user-select:none;
+    }
+    .pill .dot{
+      width:8px;height:8px;border-radius:99px;
+      background: linear-gradient(135deg, var(--lilac), var(--sky));
+      box-shadow: 0 0 0 3px rgba(139,92,246,.14);
+    }
+    .pill b{font-weight:900}
+
+    .stage{
+      position:relative;
+      flex: 1 1 auto;
+      overflow:hidden;
+      background:
+        radial-gradient(900px 520px at 20% 20%, rgba(139,92,246,.12), transparent 55%),
+        radial-gradient(820px 560px at 80% 25%, rgba(34,211,238,.10), transparent 58%),
+        radial-gradient(760px 520px at 50% 95%, rgba(52,211,153,.08), transparent 58%),
+        linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));
+    }
+
+    .floor{
+      position:absolute;
+      left:-20%;
+      right:-20%;
+      bottom:-44px;
+      height: 160px;
+      border-radius: 999px;
+      background: radial-gradient(60% 120% at 50% 0%, rgba(255,255,255,.10), rgba(255,255,255,0));
+      opacity:.7;
+      pointer-events:none;
+    }
+
+    /* Basket */
+    .basket{
+      position:absolute;
+      bottom: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 56px;
+      border-radius: 0 0 22px 22px;
+      background: linear-gradient(180deg, rgba(34,50,58,.92), rgba(15,47,42,.92));
+      border: 1px solid rgba(52,211,153,.25);
+      box-shadow: 0 18px 55px rgba(0,0,0,.35);
+      overflow:hidden;
+      will-change: transform;
+    }
+    .basket::before{
+      content:"";
+      position:absolute;
+      left:-10%;
+      right:-10%;
+      top:-14px;
+      height: 28px;
+      border-radius: 999px;
+      background: radial-gradient(60% 140% at 50% 60%, rgba(255,255,255,.14), rgba(255,255,255,0));
+      border: 1px solid rgba(255,255,255,.10);
+      opacity:.9;
+    }
+    .basket::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        repeating-linear-gradient(90deg,
+          rgba(234,241,255,.08) 0px,
+          rgba(234,241,255,.08) 6px,
+          rgba(234,241,255,0) 6px,
+          rgba(234,241,255,0) 12px
+        );
+      mix-blend-mode: overlay;
+      opacity:.6;
+      pointer-events:none;
+    }
+
+    .basket-handle{
+      position:absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 64px;
+      width: 92px;
+      height: 46px;
+      border-radius: 999px 999px 18px 18px;
+      border: 2px solid rgba(52,211,153,.35);
+      border-bottom: none;
+      opacity:.9;
+      pointer-events:none;
+      filter: drop-shadow(0 14px 30px rgba(0,0,0,.35));
+    }
+
+    /* Coins */
+    .coin{
+      position:absolute;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      display:grid;
+      place-items:center;
+      pointer-events:none;
+      will-change: transform;
+      filter: drop-shadow(0 16px 26px rgba(0,0,0,.35));
+    }
+    .coin.silver{
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.85), rgba(215,222,233,.65) 42%, rgba(145,160,180,.35) 75%);
+      border: 1px solid rgba(255,255,255,.20);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.08);
+    }
+    .coin.gold{
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.85), rgba(255,215,120,.70) 42%, rgba(249,115,22,.40) 78%);
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.08);
+    }
+    .coin::after{
+      content:"";
+      width: 70%;
+      height: 70%;
+      border-radius: 999px;
+      border: 1px dashed rgba(255,255,255,.22);
+      opacity:.9;
+    }
+
+    .spark{
+      position:absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(34,211,238,.95);
+      box-shadow: 0 0 0 6px rgba(34,211,238,.10);
+      pointer-events:none;
+      transform: translate(-50%,-50%);
+      animation: spark 520ms ease-out forwards;
+      filter: drop-shadow(0 10px 20px rgba(0,0,0,.25));
+    }
+    @keyframes spark{
+      from{ opacity: 0; transform: translate(-50%,-50%) scale(.7); }
+      25%{ opacity: 1; }
+      to{ opacity: 0; transform: translate(-50%,-50%) scale(1.8); }
+    }
+
+    .toast{
+      position:absolute;
+      left: 50%;
+      top: 14px;
+      transform: translateX(-50%);
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(10,14,22,.50);
+      color: rgba(234,241,255,.92);
+      font-size: 12.5px;
+      display:none;
+      gap: 8px;
+      align-items:center;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 18px 55px rgba(0,0,0,.25);
+      user-select:none;
+    }
+    .toast.show{ display:inline-flex; }
+    .toast .star{
+      width: 8px; height: 8px; border-radius: 99px;
+      background: linear-gradient(135deg, var(--lilac), var(--sky));
+      box-shadow: 0 0 0 3px rgba(139,92,246,.14);
+    }
+
+    /* Overlays */
+    .overlay{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(7,10,18,.56);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+      padding: 16px;
+    }
+    .modal{
+      width: min(540px, 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+      box-shadow: 0 28px 90px rgba(0,0,0,.55);
+      padding: 18px;
+      position:relative;
+      overflow:hidden;
+    }
+    .modal::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(520px 220px at 18% 0%, rgba(139,92,246,.22), transparent 60%),
+        radial-gradient(520px 220px at 82% 0%, rgba(34,211,238,.16), transparent 62%);
+      opacity:.85;
+      pointer-events:none;
+      mask: linear-gradient(#000, transparent 70%);
+    }
+    .modal h2{
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -.3px;
+      position:relative;
+    }
+    .modal p{
+      margin: 10px 0 14px;
+      color: var(--muted);
+      line-height:1.6;
+      position:relative;
+    }
+    .legend{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      margin: 10px 0 14px;
+      position:relative;
+    }
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      font-size: 12.5px;
+      color: rgba(234,241,255,.92);
+    }
+    .tag i{
+      width: 10px; height: 10px; border-radius: 999px;
+      display:inline-block;
+    }
+    .tag i.s{ background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.85), rgba(215,222,233,.65) 42%, rgba(145,160,180,.35) 75%); }
+    .tag i.g{ background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.85), rgba(255,215,120,.70) 42%, rgba(249,115,22,.40) 78%); }
+
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      position:relative;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: rgba(234,241,255,.95);
+      font-weight: 900;
+      letter-spacing:.1px;
+      cursor:pointer;
+      transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+      user-select:none;
+    }
+    .btn.primary{
+      border-color: rgba(139,92,246,.35);
+      background: linear-gradient(135deg, rgba(139,92,246,.22), rgba(34,211,238,.14));
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.06);
+      border-color: rgba(255,255,255,.18);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 18px 55px rgba(0,0,0,.35);
+    }
+    .btn:active{ transform: translateY(0) scale(.99); }
+
+    @media (max-width: 680px){
+      .shell{ height: calc(100vh - 32px); border-radius: 20px; }
+      .basket{ width: 108px; height: 52px; }
+      .coin{ width: 32px; height: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="shell" role="application" aria-label="Мини-игра: ловим монетки">
+      <header>
+        <div class="left">
+          <div class="badge" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 2l2.6 7.6H22l-6.1 4.4 2.3 7.6L12 17.2 5.8 21.6l2.3-7.6L2 9.6h7.4L12 2z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="hgroup">
+            <h1>Ловим монетки</h1>
+            <p>Двигай корзину мышкой или пальцем • 60 секунд</p>
+          </div>
+        </div>
+
+        <div class="hud">
+          <div class="pill"><span class="dot"></span> Очки: <b id="score">0</b></div>
+          <div class="pill"><span class="dot"></span> Время: <b id="time">60</b>с</div>
+        </div>
+      </header>
+
+      <div class="stage" id="stage" aria-label="Игровое поле">
+        <div class="toast" id="toast"><span class="star"></span><span id="toastText">+1</span></div>
+
+        <div class="basket-handle" aria-hidden="true"></div>
+        <div class="basket" id="basket" aria-label="Корзина"></div>
+        <div class="floor" aria-hidden="true"></div>
+
+        <div class="overlay" id="startOverlay" aria-label="Старт">
+          <div class="modal">
+            <h2>Правила</h2>
+            <p>Лови падающие монетки корзиной. Серебряная — <b>+1</b>, золотая — <b>×2</b> (то есть <b>+2</b>). Игра длится 60 секунд.</p>
+            <div class="legend">
+              <span class="tag"><i class="s"></i> Серебро: +1</span>
+              <span class="tag"><i class="g"></i> Золото: +2</span>
+              <span class="tag">Управление: мышь / тач</span>
+            </div>
+            <div class="actions">
+              <button class="btn primary" id="startBtn" type="button">Начать</button>
+              <button class="btn" id="howBtn" type="button">Как играть</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="overlay" id="endOverlay" style="display:none" aria-label="Результат">
+          <div class="modal">
+            <h2>Время вышло!</h2>
+            <p>Твой результат: <b><span id="finalScore">0</span></b> очков. Хочешь побить рекорд?</p>
+            <div class="actions">
+              <button class="btn primary" id="restartBtn" type="button">Заново</button>
+              <button class="btn" id="closeBtn" type="button">Скрыть</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const stage = document.getElementById('stage');
+    const basket = document.getElementById('basket');
+    const scoreEl = document.getElementById('score');
+    const timeEl = document.getElementById('time');
+
+    const startOverlay = document.getElementById('startOverlay');
+    const endOverlay = document.getElementById('endOverlay');
+    const finalScoreEl = document.getElementById('finalScore');
+
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+
+    const startBtn = document.getElementById('startBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const closeBtn = document.getElementById('closeBtn');
+    const howBtn = document.getElementById('howBtn');
+
+    let running = false;
+    let score = 0;
+    let timeLeft = 60;
+
+    let basketX = 0;   // center x in px
+    let targetX = 0;
+
+    const coins = [];
+    let spawnTimer = 0;
+
+    let lastTs = 0;
+    let rafId = 0;
+    let countdownId = 0;
+
+    function clamp(n, a, b){ return Math.max(a, Math.min(b, n)); }
+    function stageRect(){ return stage.getBoundingClientRect(); }
+
+    function setBasketCenter(x){
+      const r = stageRect();
+      const w = basket.offsetWidth;
+      const minX = w/2 + 8;
+      const maxX = r.width - w/2 - 8;
+      targetX = clamp(x, minX, maxX);
+    }
+
+    function updateBasket(dt){
+      const speed = 18;
+      basketX += (targetX - basketX) * (1 - Math.exp(-speed * dt));
+      basket.style.transform = `translateX(${basketX - (stageRect().width/2)}px)`;
+    }
+
+    function showToast(text, x, y){
+      toastText.textContent = text;
+      toast.classList.add('show');
+      toast.style.left = x + 'px';
+      toast.style.top = Math.max(10, y - 16) + 'px';
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(() => toast.classList.remove('show'), 520);
+    }
+
+    function spark(x, y){
+      const s = document.createElement('div');
+      s.className = 'spark';
+      s.style.left = x + 'px';
+      s.style.top = y + 'px';
+      stage.appendChild(s);
+      setTimeout(() => s.remove(), 600);
+    }
+
+    function createCoin(){
+      const r = stageRect();
+      const el = document.createElement('div');
+
+      const gold = Math.random() < 0.28;
+      el.className = 'coin ' + (gold ? 'gold' : 'silver');
+
+      const size = gold ? 36 : 34;
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+
+      const x = Math.random() * (r.width - size) + size/2;
+      const y = -20 - Math.random()*40;
+
+      const base = gold ? 240 : 190;
+      const speed = base + Math.random() * (gold ? 220 : 260);
+
+      const spin = (Math.random() * 2 - 1) * (gold ? 2.6 : 3.4);
+      const wobble = (Math.random() * 2 - 1) * 40;
+      const wobbleSpeed = 1.1 + Math.random() * 1.8;
+
+      const coin = { el, x, y, vy: speed, gold, rot: 0, spin, wobble, wobbleSpeed, born: performance.now() };
+
+      stage.appendChild(el);
+      coins.push(coin);
+      positionCoin(coin, r, 0);
+    }
+
+    function positionCoin(c, r, t){
+      const wob = Math.sin(t * c.wobbleSpeed) * (c.wobble * 0.35);
+      const cx = c.x + wob;
+      c.el.style.transform = `translate(${cx - c.el.offsetWidth/2}px, ${c.y}px) rotate(${c.rot}rad)`;
+    }
+
+    function aabbHit(a, b){
+      return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
+    }
+
+    function updateCoins(dt, ts){
+      const r = stageRect();
+      const basketRect = basket.getBoundingClientRect();
+
+      for (let i = coins.length - 1; i >= 0; i--){
+        const c = coins[i];
+        c.y += c.vy * dt;
+        c.rot += c.spin * dt;
+
+        positionCoin(c, r, (ts - c.born)/1000);
+
+        const coinRect = c.el.getBoundingClientRect();
+
+        if (coinRect.bottom >= basketRect.top - 10 && coinRect.top <= basketRect.bottom + 10){
+          if (aabbHit(coinRect, basketRect)){
+            const add = c.gold ? 2 : 1;
+            score += add;
+            scoreEl.textContent = score;
+
+            const centerX = (coinRect.left + coinRect.right)/2 - r.left;
+            const centerY = (coinRect.top + coinRect.bottom)/2 - r.top;
+
+            spark(centerX, centerY);
+            showToast("+" + add + (c.gold ? " (x2)" : ""), centerX, centerY);
+
+            c.el.remove();
+            coins.splice(i, 1);
+            continue;
+          }
+        }
+
+        if (c.y > r.height + 60){
+          c.el.remove();
+          coins.splice(i, 1);
+        }
+      }
+    }
+
+    function loop(ts){
+      if (!running) return;
+
+      const dt = Math.min(0.033, (ts - lastTs) / 1000 || 0.016);
+      lastTs = ts;
+
+      updateBasket(dt);
+
+      const intensity = 1 + (60 - timeLeft) / 60 * 0.9;
+      spawnTimer -= dt * intensity;
+      if (spawnTimer <= 0){
+        const burst = Math.random() < 0.12 ? 2 : 1;
+        for (let i=0;i<burst;i++) createCoin();
+        spawnTimer = 0.22 + Math.random() * 0.35;
+      }
+
+      updateCoins(dt, ts);
+
+      rafId = requestAnimationFrame(loop);
+    }
+
+    function start(){
+      for (const c of coins) c.el.remove();
+      coins.length = 0;
+
+      score = 0;
+      timeLeft = 60;
+      scoreEl.textContent = "0";
+      timeEl.textContent = String(timeLeft);
+
+      const r = stageRect();
+      basketX = r.width/2;
+      targetX = basketX;
+      basket.style.transform = `translateX(0px)`;
+
+      startOverlay.style.display = 'none';
+      endOverlay.style.display = 'none';
+
+      running = true;
+      lastTs = performance.now();
+      spawnTimer = 0.1;
+
+      clearInterval(countdownId);
+      countdownId = setInterval(() => {
+        if (!running) return;
+        timeLeft -= 1;
+        timeEl.textContent = String(timeLeft);
+        if (timeLeft <= 0) end();
+      }, 1000);
+
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(loop);
+    }
+
+    function end(){
+      running = false;
+      clearInterval(countdownId);
+      cancelAnimationFrame(rafId);
+      finalScoreEl.textContent = String(score);
+      endOverlay.style.display = 'flex';
+    }
+
+    function initControls(){
+      const move = (clientX) => {
+        const r = stageRect();
+        setBasketCenter(clientX - r.left);
+      };
+
+      stage.addEventListener('mousemove', (e) => move(e.clientX));
+
+      stage.addEventListener('pointerdown', (e) => {
+        stage.setPointerCapture(e.pointerId);
+        move(e.clientX);
+      });
+      stage.addEventListener('pointermove', (e) => move(e.clientX));
+    }
+
+    startBtn.addEventListener('click', start);
+    restartBtn.addEventListener('click', start);
+    closeBtn.addEventListener('click', () => endOverlay.style.display = 'none');
+    howBtn.addEventListener('click', () => {
+      alert("Управление: двигай мышь/палец по экрану — корзина следует за тобой. Лови монетки 60 секунд. Серебро +1, золото +2.");
+    });
+
+    window.addEventListener('resize', () => {
+      const r = stageRect();
+      basketX = clamp(basketX, 60, r.width-60);
+      targetX = basketX;
+      basket.style.transform = `translateX(${basketX - (r.width/2)}px)`;
+    });
+
+    initControls();
+
+    requestAnimationFrame(() => {
+      const r = stageRect();
+      basketX = r.width/2;
+      targetX = basketX;
+      basket.style.transform = `translateX(0px)`;
+    });
+  </script>
+</body>
+</html>

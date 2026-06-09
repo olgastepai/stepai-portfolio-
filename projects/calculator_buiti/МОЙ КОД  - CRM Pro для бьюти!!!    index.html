@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM Pro</title>
+
+<style>
+:root {
+  --bg: #f5f5f7;
+  --card: #ffffff;
+  --text: #1f1f1f;
+  --muted: #6b7280;
+  --accent: #8b5cf6;
+  --accent-dark: #6d28d9;
+  --danger: #ef4444;
+  --radius: 18px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  padding: 20px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+main {
+  max-width: 1000px;
+  margin: auto;
+  padding: 20px;
+}
+
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab {
+  padding: 10px 15px;
+  background: var(--card);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.tab.active {
+  background: var(--accent);
+  color: white;
+}
+
+.card {
+  background: var(--card);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+input, select, button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+button {
+  background: var(--accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--accent-dark);
+}
+
+.client {
+  border-top: 1px solid #eee;
+  padding: 10px 0;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.row > * {
+  flex: 1;
+}
+
+.delete {
+  background: var(--danger);
+  margin-top: 10px;
+}
+
+.hidden {
+  display: none;
+}
+
+.stat {
+  font-size: 18px;
+  margin: 10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<header>CRM Pro</header>
+
+<main>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('clients')">Клиенты</div>
+  <div class="tab" onclick="switchTab('analytics')">Аналитика</div>
+</div>
+
+<!-- КЛИЕНТЫ -->
+<section id="clients" class="tab-content">
+
+<div class="card">
+  <h3>Добавить клиента</h3>
+  <input id="name" placeholder="Имя">
+  <input id="contact" placeholder="Контакт">
+  <select id="status">
+    <option>Новый</option>
+    <option>В работе</option>
+    <option>Закрыт</option>
+  </select>
+  <button onclick="addClient()">Добавить</button>
+</div>
+
+<div class="card">
+  <h3>Поиск и фильтр</h3>
+  <input id="search" placeholder="Поиск..." oninput="render()">
+  <select id="filter" onchange="render()">
+    <option value="">Все</option>
+    <option>Новый</option>
+    <option>В работе</option>
+    <option>Закрыт</option>
+  </select>
+</div>
+
+<div class="card">
+  <h3>Список</h3>
+  <div id="list"></div>
+</div>
+
+</section>
+
+<!-- АНАЛИТИКА -->
+<section id="analytics" class="tab-content hidden">
+  <div class="card">
+    <h3>Статистика</h3>
+    <div id="stats"></div>
+    <button onclick="exportData()">Экспорт JSON</button>
+  </div>
+</section>
+
+</main>
+
+<script>
+let clients = JSON.parse(localStorage.getItem('crm_pro')) || [];
+
+function save() {
+  localStorage.setItem('crm_pro', JSON.stringify(clients));
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+  document.getElementById(tab).classList.remove('hidden');
+
+  if (tab === 'analytics') renderStats();
+}
+
+function addClient() {
+  const name = document.getElementById('name').value.trim();
+  if (!name) return alert('Введите имя');
+
+  clients.push({
+    name,
+    contact: document.getElementById('contact').value,
+    status: document.getElementById('status').value
+  });
+
+  save();
+  render();
+}
+
+function render() {
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+
+  const search = document.getElementById('search').value.toLowerCase();
+  const filter = document.getElementById('filter').value;
+
+  const filtered = clients.filter(c =>
+    (!filter || c.status === filter) &&
+    c.name.toLowerCase().includes(search)
+  );
+
+  if (filtered.length === 0) {
+    list.textContent = 'Нет данных';
+    return;
+  }
+
+  filtered.forEach((c, i) => {
+    const div = document.createElement('div');
+    div.className = 'client';
+
+    div.textContent = `${c.name} — ${c.status}`;
+
+    const del = document.createElement('button');
+    del.textContent = 'Удалить';
+    del.className = 'delete';
+    del.onclick = () => {
+      clients.splice(i, 1);
+      save();
+      render();
+    };
+
+    div.appendChild(del);
+    list.appendChild(div);
+  });
+}
+
+function renderStats() {
+  const stats = {};
+  clients.forEach(c => {
+    stats[c.status] = (stats[c.status] || 0) + 1;
+  });
+
+  const container = document.getElementById('stats');
+  container.innerHTML = '';
+
+  for (let key in stats) {
+    const div = document.createElement('div');
+    div.className = 'stat';
+    div.textContent = `${key}: ${stats[key]}`;
+    container.appendChild(div);
+  }
+}
+
+function exportData() {
+  const dataStr = JSON.stringify(clients, null, 2);
+  const blob = new Blob([dataStr], { type: "application/json" });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'crm_data.json';
+  a.click();
+}
+
+render();
+</script>
+
+</body>
+</html>

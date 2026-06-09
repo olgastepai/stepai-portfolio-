@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Генератор конспектов уроков по истории Алтая и Алтайского края"
+    />
+    <title>Приложение — Помощник учителя истории</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="index.html" class="back-link">← На главную</a>
+        <h1>📚 Помощник учителя истории</h1>
+        <p class="tagline">Создание конспекта урока</p>
+      </div>
+    </header>
+
+    <div id="load-error" class="container hidden">
+      <div class="card alert alert-warn">
+        <h2>Не удалось загрузить банк тем</h2>
+        <p>Запустите <strong>ЗАПУСК_HTML.bat</strong> и откройте <code>http://localhost:8080</code></p>
+      </div>
+    </div>
+
+    <main id="app-main" class="container">
+      <nav class="mode-tabs" aria-label="Режим работы">
+        <button type="button" data-mode="bank" class="active">Тема из банка</button>
+        <button type="button" data-mode="custom">Своя тема</button>
+      </nav>
+
+      <section id="panel-bank" class="card">
+        <h2>Тема из банка</h2>
+        <p class="hint">Три готовые темы: цели, задачи, ход урока, ДЗ, план на доске.</p>
+
+        <label for="bank-topic">Тема</label>
+        <select id="bank-topic"></select>
+        <p id="bank-preview" class="preview-box" aria-live="polite"></p>
+
+        <div class="grid-2">
+          <div>
+            <label for="bank-grade">Класс</label>
+            <select id="bank-grade"></select>
+          </div>
+          <div>
+            <label for="bank-duration">Продолжительность</label>
+            <select id="bank-duration"></select>
+          </div>
+        </div>
+
+        <label for="bank-type">Тип урока</label>
+        <select id="bank-type"></select>
+
+        <label for="bank-extra">Дополнительный материал (необязательно)</label>
+        <textarea id="bank-extra" rows="4" placeholder="Факты, цитаты…"></textarea>
+
+        <button type="button" id="btn-bank-create" class="btn-primary">
+          Создать готовый урок из банка
+        </button>
+      </section>
+
+      <section id="panel-custom" class="card hidden">
+        <h2>Своя тема и источники</h2>
+
+        <label for="custom-topic">Тема урока</label>
+        <input type="text" id="custom-topic" placeholder="Например: Народы Алтая в древности" />
+
+        <div class="grid-2">
+          <div>
+            <label for="custom-grade">Класс</label>
+            <select id="custom-grade"></select>
+          </div>
+          <div>
+            <label for="custom-duration">Продолжительность</label>
+            <select id="custom-duration"></select>
+          </div>
+        </div>
+
+        <label for="custom-type">Тип урока</label>
+        <select id="custom-type"></select>
+
+        <label for="custom-link">Ссылка (в конспект)</label>
+        <input type="url" id="custom-link" placeholder="https://..." />
+
+        <label for="custom-links">Дополнительные ссылки</label>
+        <textarea id="custom-links" rows="2"></textarea>
+
+        <label for="custom-material">Материал из источников</label>
+        <textarea
+          id="custom-material"
+          rows="10"
+          placeholder="Скопируйте текст статьи (Ctrl+C) и вставьте сюда."
+        ></textarea>
+
+        <p class="alert alert-info">
+          Автозагрузка по ссылке в браузере недоступна. Полная версия с загрузкой с сайта —
+          <strong>ЗАПУСК.bat</strong> (Streamlit).
+        </p>
+
+        <button type="button" id="btn-custom-create" class="btn-primary">
+          Создать урок по своей теме
+        </button>
+      </section>
+
+      <section id="result-section" class="card hidden">
+        <h2>📝 Готовый материал для урока</h2>
+        <textarea id="lesson-output" readonly aria-label="Текст урока"></textarea>
+        <div class="btn-row">
+          <button type="button" id="btn-download" class="btn-secondary">Скачать TXT</button>
+          <button type="button" id="btn-print" class="btn-secondary">Печать</button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p><a href="index.html">Главная страница</a> · История Алтая и Алтайского края</p>
+    </footer>
+
+    <script src="js/lesson-bank.js"></script>
+    <script src="js/lesson-builder.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
