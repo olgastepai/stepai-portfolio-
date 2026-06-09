@@ -1,4 +1,4 @@
-# Моё портфолио — инструкция для olgastepai
+# Простая инструкция для olgastepai
 
 ## Что значат пункты на GitHub
 
@@ -19,18 +19,12 @@
 1. Откройте в браузере: **https://github.com/new**
 2. В поле **Repository name** напишите:
    ```
-   moyo-portfolio
+   stepai-portfolio
    ```
-   (техническое имя латиницей — так GitHub лучше работает)
-
-3. В поле **Description** (описание) напишите:
-   ```
-   Моё портфолио
-   ```
-   (это название, которое увидят на GitHub)
-4. Выберите **Public**
-5. **Не ставьте** галочки Add README, Add .gitignore, Choose a license
-6. Нажмите зелёную кнопку **Create repository**
+   (именно сюда — это название «папки» на GitHub)
+3. Выберите **Public**
+4. **Не ставьте** галочки Add README, Add .gitignore, Choose a license
+5. Нажмите зелёную кнопку **Create repository**
 
 ---
 
@@ -57,12 +51,12 @@ cd "c:\Users\VIP\Videos\1.Проекты Курсор\Моё портфолио"
 
 ### Команда 2 — связать с GitHub (ваш логин уже подставлен)
 ```
-git remote add origin https://github.com/olgastepai/moyo-portfolio.git
+git remote add origin https://github.com/olgastepai/stepai-portfolio.git
 ```
 
 > Если напишет «remote origin already exists» — вместо неё введите:
 > ```
-> git remote set-url origin https://github.com/olgastepai/moyo-portfolio.git
+> git remote set-url origin https://github.com/olgastepai/stepai-portfolio.git
 > ```
 
 ### Команда 3 — отправить файлы на GitHub
@@ -91,14 +85,14 @@ git push -u origin main
 
 ## Шаг 5. Включить сайт в интернете
 
-1. Откройте: **https://github.com/olgastepai/moyo-portfolio**
+1. Откройте: **https://github.com/olgastepai/stepai-portfolio**
 2. **Settings** → слева **Pages**
 3. **Branch:** выберите `main`, папка **`/ (root)`**
 4. **Save**
 
 Через 2–3 минуты сайт будет здесь:
 
-### https://olgastepai.github.io/moyo-portfolio/
+### https://olgastepai.github.io/stepai-portfolio/
 
 Эту ссылку можно давать клиентам и в резюме.
 
@@ -116,6 +110,5 @@ git push -u origin main
 ---
 
 **Ваш логин:** olgastepai  
-**Название проекта:** Моё портфолио  
-**Имя репозитория (латиницей):** moyo-portfolio  
-**Ссылка на сайт:** https://olgastepai.github.io/moyo-portfolio/
+**Название репозитория:** stepai-portfolio  
+**Ссылка на сайт:** https://olgastepai.github.io/stepai-portfolio/
