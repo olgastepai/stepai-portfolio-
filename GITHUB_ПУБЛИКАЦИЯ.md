@@ -96,8 +96,9 @@ https://ВАШ_ЛОГИН.github.io/stepai-portfolio/
 |----------|---------|
 | `git` не распознан | Переустановите Git, перезапустите терминал |
 | Ошибка при push | Проверьте токен GitHub |
-| Сайт без картинок | Убедитесь, что папка `images/` загружена |
-| Квиз не открывается | На Pages обычно работает; проверьте ссылку в браузере |
+| Сайт без картинок | На GitHub должны быть папки `images/`, `projects/` и `css/`. Загрузите **весь проект**, не только `index.html` |
+| Квиз не открывается | Нужна папка `projects/ai-quiz/` с файлом `quiz-olga-ai.html` |
+| Ссылка GitHub Pages | `https://olgastepai.github.io/stepai-portfolio-/` (репозиторий `stepai-portfolio-`) |
 
 ---
 

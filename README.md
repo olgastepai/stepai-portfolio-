@@ -32,7 +32,9 @@ https://<ваш-логин>.github.io/<имя-репозитория>/
 ## Структура репозитория
 
 ```
-├── index.html              # Главная страница (HTML + CSS + JS)
+├── index.html              # Главная страница (HTML + JS)
+├── css/
+│   └── portfolio.css       # Стили Luxury Soft Tech (по ТЗ)
 ├── images/                 # Фотографии для портфолио
 │   ├── olga-main.jpg
 │   ├── olga-main2.jpg … olga-main5.jpg

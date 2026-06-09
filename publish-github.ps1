@@ -65,14 +65,17 @@ Write-Host "  СЛЕДУЮЩИЙ ШАГ — GitHub" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "1. Откройте: https://github.com/new"
-Write-Host "2. Имя репозитория: stepai-portfolio (или своё)"
+Write-Host "2. Имя репозитория: stepai-portfolio- (ваш текущий репозиторий)"
 Write-Host "3. Public, БЕЗ README (у нас уже есть)"
 Write-Host "4. Create repository"
 Write-Host ""
 Write-Host "5. Выполните в этой папке (замените ЛОГИН и РЕПО):" -ForegroundColor Yellow
 Write-Host ""
-Write-Host '  git remote add origin https://github.com/ЛОГИН/РЕПО.git'
+Write-Host '  git remote add origin https://github.com/olgastepai/stepai-portfolio-.git'
 Write-Host '  git push -u origin main'
+Write-Host ""
+Write-Host "ВАЖНО: на GitHub должны быть папки images/, projects/ и css/!" -ForegroundColor Yellow
+Write-Host "Без них пропадут фото и квиз AI-диагностики." -ForegroundColor Yellow
 Write-Host ""
 Write-Host "6. GitHub → Settings → Pages → main → / (root) → Save"
 Write-Host "7. Сайт будет: https://ЛОГИН.github.io/РЕПО/"

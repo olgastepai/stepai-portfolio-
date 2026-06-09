@@ -19,7 +19,7 @@
 1. Откройте в браузере: **https://github.com/new**
 2. В поле **Repository name** напишите:
    ```
-   stepai-portfolio
+   stepai-portfolio-
    ```
    (именно сюда — это название «папки» на GitHub)
 3. Выберите **Public**
@@ -51,12 +51,12 @@ cd "c:\Users\VIP\Videos\1.Проекты Курсор\Моё портфолио"
 
 ### Команда 2 — связать с GitHub (ваш логин уже подставлен)
 ```
-git remote add origin https://github.com/olgastepai/stepai-portfolio.git
+git remote add origin https://github.com/olgastepai/stepai-portfolio-.git
 ```
 
 > Если напишет «remote origin already exists» — вместо неё введите:
 > ```
-> git remote set-url origin https://github.com/olgastepai/stepai-portfolio.git
+> git remote set-url origin https://github.com/olgastepai/stepai-portfolio-.git
 > ```
 
 ### Команда 3 — отправить файлы на GitHub
@@ -85,14 +85,14 @@ git push -u origin main
 
 ## Шаг 5. Включить сайт в интернете
 
-1. Откройте: **https://github.com/olgastepai/stepai-portfolio**
+1. Откройте: **https://github.com/olgastepai/stepai-portfolio-**
 2. **Settings** → слева **Pages**
 3. **Branch:** выберите `main`, папка **`/ (root)`**
 4. **Save**
 
 Через 2–3 минуты сайт будет здесь:
 
-### https://olgastepai.github.io/stepai-portfolio/
+### https://olgastepai.github.io/stepai-portfolio-/
 
 Эту ссылку можно давать клиентам и в резюме.
 
@@ -105,10 +105,11 @@ git push -u origin main
 | `git: command not found` | Перезапустите Cursor |
 | `Repository not found` | Сначала создайте репозиторий на github.com/new |
 | `Authentication failed` | Используйте токен, не пароль |
+| Нет фото / нет квиза на сайте | Загрузите **весь проект**: папки `images/`, `projects/`, `css/` |
 | Окно bat закрылось сразу | Используйте терминал в Cursor (шаг 2–3) |
 
 ---
 
 **Ваш логин:** olgastepai  
-**Название репозитория:** stepai-portfolio  
-**Ссылка на сайт:** https://olgastepai.github.io/stepai-portfolio/
+**Название репозитория:** stepai-portfolio-  
+**Ссылка на сайт:** https://olgastepai.github.io/stepai-portfolio-/
