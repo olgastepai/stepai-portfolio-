@@ -38,7 +38,8 @@ powershell -ExecutionPolicy Bypass -File publish-github.ps1
 1. Войдите на **https://github.com**
 2. Нажмите **+** → **New repository**
 3. Заполните:
-   - **Repository name:** `stepai-portfolio` (или другое имя латиницей)
+   - **Repository name:** `moyo-portfolio`
+   - **Description:** `Моё портфолио`
    - **Public**
    - **НЕ** ставьте галочки «Add README» / «Add .gitignore» — они уже есть в проекте
 4. **Create repository**
@@ -52,7 +53,7 @@ powershell -ExecutionPolicy Bypass -File publish-github.ps1
 ```bash
 cd "c:\Users\VIP\Videos\1.Проекты Курсор\Моё портфолио"
 
-git remote add origin https://github.com/ВАШ_ЛОГИН/stepai-portfolio.git
+git remote add origin https://github.com/olgastepai/moyo-portfolio.git
 git push -u origin main
 ```
 
@@ -75,7 +76,7 @@ git push -u origin main
 Через 1–3 минуты сайт откроется по адресу:
 
 ```
-https://ВАШ_ЛОГИН.github.io/stepai-portfolio/
+https://olgastepai.github.io/moyo-portfolio/
 ```
 
 Эту ссылку можно добавить в резюме, Telegram и Instagram.

@@ -53,7 +53,7 @@ $status = & $git status --porcelain
 if (-not $status) {
     Write-Host "Нет изменений для коммита." -ForegroundColor Yellow
 } else {
-    & $git commit -m "Портфолио StepAI — Ольга Степченко" -m "Production-ready сайт-портфолио с демо-проектами."
+    & $git commit -m "Моё портфолио — Ольга Степченко" -m "Production-ready сайт-портфолио с демо-проектами."
     Write-Host "Коммит создан." -ForegroundColor Green
 }
 
@@ -65,7 +65,8 @@ Write-Host "  СЛЕДУЮЩИЙ ШАГ — GitHub" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "1. Откройте: https://github.com/new"
-Write-Host "2. Имя репозитория: stepai-portfolio (или своё)"
+Write-Host "2. Имя репозитория: moyo-portfolio"
+Write-Host "   Описание (Description): Моё портфолио"
 Write-Host "3. Public, БЕЗ README (у нас уже есть)"
 Write-Host "4. Create repository"
 Write-Host ""
