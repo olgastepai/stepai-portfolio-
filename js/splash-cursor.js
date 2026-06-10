@@ -19,6 +19,8 @@
     var COLOR_UPDATE_SPEED = options.COLOR_UPDATE_SPEED || 10;
     var BACK_COLOR = options.BACK_COLOR || { r: 0.72, g: 0.55, b: 0.95 };
     var TRANSPARENT = options.TRANSPARENT !== false;
+    var RAINBOW_MODE = options.RAINBOW_MODE !== false;
+    var COLOR = options.COLOR || '#B49BFF';
     var animationFrameId = null;
 
 
@@ -62,7 +64,13 @@ var config = {
 
 let pointers = [new pointerPrototype()];
 
-const { gl, ext } = getWebGLContext(canvas);
+const webgl = getWebGLContext(canvas);
+if (!webgl || !webgl.gl) {
+  console.warn('SplashCursor: WebGL недоступен');
+  return function () {};
+}
+const gl = webgl.gl;
+const ext = webgl.ext;
 if (!ext.supportLinearFiltering) {
   config.DYE_RESOLUTION = 256;
   config.SHADING = false;
@@ -79,6 +87,7 @@ function getWebGLContext(canvas) {
   let gl = canvas.getContext('webgl2', params);
   const isWebGL2 = !!gl;
   if (!isWebGL2) gl = canvas.getContext('webgl', params) || canvas.getContext('experimental-webgl', params);
+  if (!gl) return { gl: null, ext: {} };
 
   let halfFloat;
   let supportLinearFiltering;
@@ -895,10 +904,17 @@ function generateColor() {
   if (!config.RAINBOW_MODE) {
     return hexToRGB(config.COLOR);
   }
-  let c = HSVtoRGB(Math.random(), 1.0, 1.0);
-  c.r *= 0.15;
-  c.g *= 0.15;
-  c.b *= 0.15;
+  var palette = [
+    { h: 0.78, s: 0.55, v: 1.0 },
+    { h: 0.72, s: 0.5, v: 1.0 },
+    { h: 0.48, s: 0.45, v: 0.95 },
+    { h: 0.82, s: 0.4, v: 1.0 }
+  ];
+  var p = palette[Math.floor(Math.random() * palette.length)];
+  var c = HSVtoRGB(p.h + (Math.random() - 0.5) * 0.04, p.s, p.v);
+  c.r *= 0.28;
+  c.g *= 0.28;
+  c.b *= 0.28;
   return c;
 }
 
@@ -1054,7 +1070,6 @@ return cleanup;
 
   function mountSplashCursor(options) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return null;
-    if (window.matchMedia('(pointer: coarse)').matches && window.innerWidth < 1024) return null;
     var wrap = document.createElement('div');
     wrap.className = 'splash-cursor';
     wrap.setAttribute('aria-hidden', 'true');
@@ -1062,7 +1077,13 @@ return cleanup;
     canvas.id = 'fluid';
     wrap.appendChild(canvas);
     document.body.appendChild(wrap);
-    return initSplashCursor(canvas, options);
+    try {
+      return initSplashCursor(canvas, options);
+    } catch (err) {
+      console.warn('SplashCursor: не удалось запустить', err);
+      wrap.remove();
+      return null;
+    }
   }
 
   global.StepAISplashCursor = { init: initSplashCursor, mount: mountSplashCursor };

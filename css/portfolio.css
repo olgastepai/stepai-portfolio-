@@ -1675,13 +1675,14 @@
       .testimonial-card__quote { font-size: 0.88rem; }
     }
 
-    /* SplashCursor — fluid trail behind content */
+    /* SplashCursor — fluid trail over background, under nav */
     .splash-cursor {
       position: fixed;
       inset: 0;
-      z-index: 3;
+      z-index: 50;
       pointer-events: none;
       overflow: hidden;
+      mix-blend-mode: screen;
     }
 
     .splash-cursor canvas {

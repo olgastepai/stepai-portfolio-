@@ -535,10 +535,11 @@
       });
     })();
   </script>
-  <script src="js/splash-cursor.js" data-asset="js/splash-cursor.js"></script>
+  <script src="js/splash-cursor.js"></script>
   <script>
     (function () {
-      if (window.StepAISplashCursor) {
+      function startSplash() {
+        if (!window.StepAISplashCursor) return;
         window.StepAISplashCursor.mount({
           SIM_RESOLUTION: 128,
           DYE_RESOLUTION: 1440,
@@ -546,10 +547,16 @@
           VELOCITY_DISSIPATION: 2,
           PRESSURE: 0.1,
           CURL: 3,
-          SPLAT_RADIUS: 0.2,
+          SPLAT_RADIUS: 0.25,
           SPLAT_FORCE: 6000,
-          COLOR_UPDATE_SPEED: 10
+          COLOR_UPDATE_SPEED: 10,
+          RAINBOW_MODE: true
         });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', startSplash);
+      } else {
+        startSplash();
       }
     })();
   </script>
