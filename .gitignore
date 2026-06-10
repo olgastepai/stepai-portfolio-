@@ -24,8 +24,18 @@ Desktop.ini
 # Черновики (не используются на сайте)
 Olga_Stepchenko_Portfolio.html
 
-# Лишние исходники изображений (на сайте используются только .jpg)
+# Лишние исходники изображений
 images/ChatGPT*.png
+/olga-main.png
+/olga-main2.png
+/olga-main3.png
+/olga-main4.png
+/olga-main5.png
+/olga-main_kontakt.png
+/olga-main_itog.png
+Моё потфолио/
+js/_splash-source.jsx
+js/build-splash.py
 
 # Python (для вложенного проекта history_teacher_app)
 __pycache__/

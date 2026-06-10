@@ -19,7 +19,8 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="css/portfolio.css">
+  <link rel="stylesheet" href="css/portfolio.css" id="site-css" data-asset="css/portfolio.css">
+  <script src="js/site-assets.js"></script>
 
 </head>
 <body>
@@ -83,7 +84,7 @@
               <div class="hero__photo-glow" aria-hidden="true"></div>
               <div class="photo-lift-ground" aria-hidden="true"></div>
               <div class="photo-lift-corner" aria-hidden="true"></div>
-              <img src="images/olga-main.jpg" alt="Ольга Степченко" class="hero__photo living-photo" id="heroPhoto" width="400" height="533" style="--photo-delay: 0s">
+              <img src="images/olga-main.png" data-asset="images/olga-main.png" alt="Ольга Степченко" class="hero__photo living-photo" id="heroPhoto" width="400" height="533" style="--photo-delay: 0s">
               <div class="hero__float-desktop">
                 <div class="float-card float-card--1">Нейрофотосессии</div>
                 <div class="float-card float-card--2">ИИ-агенты</div>
@@ -114,7 +115,7 @@
             <div class="photo-lift-wrap">
               <div class="photo-lift-ground" aria-hidden="true"></div>
               <div class="photo-lift-corner" aria-hidden="true"></div>
-              <img src="images/olga-main2.jpg" alt="Ольга Степченко — цифровые решения" class="services__photo living-photo" width="480" height="600" style="--photo-delay: 0.4s">
+              <img src="images/olga-main2.png" data-asset="images/olga-main2.png" alt="Ольга Степченко — цифровые решения" class="services__photo living-photo" width="480" height="600" style="--photo-delay: 0.4s">
             </div>
           </div>
         </div>
@@ -158,7 +159,7 @@
             <div class="photo-lift-wrap">
               <div class="photo-lift-ground" aria-hidden="true"></div>
               <div class="photo-lift-corner" aria-hidden="true"></div>
-              <img src="images/olga-main3.jpg" alt="Технологии" class="tech__photo living-photo" width="300" height="400" style="--photo-delay: 0.8s">
+              <img src="images/olga-main3.png" data-asset="images/olga-main3.png" alt="Технологии" class="tech__photo living-photo" width="300" height="400" style="--photo-delay: 0.8s">
             </div>
             <span class="tech-badge tech-badge--4">HTML5</span>
           </div>
@@ -205,7 +206,7 @@
             <div class="photo-lift-wrap">
               <div class="photo-lift-ground" aria-hidden="true"></div>
               <div class="photo-lift-corner" aria-hidden="true"></div>
-              <img src="images/olga-main4.jpg" alt="Ольга Степченко" class="about__photo living-photo" width="480" height="600" style="--photo-delay: 1.2s">
+              <img src="images/olga-main4.png" data-asset="images/olga-main4.png" alt="Ольга Степченко" class="about__photo living-photo" width="480" height="600" style="--photo-delay: 1.2s">
             </div>
           </div>
         </div>
@@ -232,7 +233,7 @@
             <div class="photo-lift-wrap">
               <div class="photo-lift-ground" aria-hidden="true"></div>
               <div class="photo-lift-corner" aria-hidden="true"></div>
-              <img src="images/olga-main5.jpg" alt="Подход к сотрудничеству" class="approach__photo living-photo" width="480" height="600" style="--photo-delay: 1.6s">
+              <img src="images/olga-main5.png" data-asset="images/olga-main5.png" alt="Подход к сотрудничеству" class="approach__photo living-photo" width="480" height="600" style="--photo-delay: 1.6s">
             </div>
           </div>
         </div>
@@ -312,7 +313,7 @@
         <div class="quiz-embed__header">
           <h3>Персональная AI-диагностика</h3>
         </div>
-        <iframe src="projects/ai-quiz/quiz-olga-ai.html" title="AI-диагностика" loading="lazy"></iframe>
+        <iframe src="projects/ai-quiz/quiz-olga-ai.html" data-asset="projects/ai-quiz/quiz-olga-ai.html" title="AI-диагностика" loading="lazy"></iframe>
       </div>
     </div>
   </section>
@@ -350,7 +351,7 @@
             <div class="photo-lift-wrap">
               <div class="photo-lift-ground" aria-hidden="true"></div>
               <div class="photo-lift-corner" aria-hidden="true"></div>
-              <img src="images/olga-main_kontakt.jpg" alt="Связаться с Ольгой Степченко" class="contacts__photo living-photo" width="480" height="600" style="--photo-delay: 2s">
+              <img src="images/olga-main_kontakt.png" data-asset="images/olga-main_kontakt.png" alt="Связаться с Ольгой Степченко" class="contacts__photo living-photo" width="480" height="600" style="--photo-delay: 2s">
             </div>
           </div>
         </div>
@@ -395,7 +396,7 @@
   <!-- ФИНАЛ -->
   <section class="section section--dark final" id="final">
     <div class="container">
-      <img src="images/olga-main_itog.jpg" alt="Ольга Степченко" class="final__photo fade-up" width="200" height="200">
+      <img src="images/olga-main_itog.png" data-asset="images/olga-main_itog.png" alt="Ольга Степченко" class="final__photo fade-up" width="200" height="200">
       <h2 class="final__title fade-up" data-delay="1">Спасибо за ваш интерес!</h2>
       <p class="final__text fade-up" data-delay="2">Буду рада сотрудничеству, новым проектам и интересным задачам!)</p>
     </div>
@@ -532,6 +533,24 @@
           window.scrollTo({ top: top, behavior: 'smooth' });
         });
       });
+    })();
+  </script>
+  <script src="js/splash-cursor.js" data-asset="js/splash-cursor.js"></script>
+  <script>
+    (function () {
+      if (window.StepAISplashCursor) {
+        window.StepAISplashCursor.mount({
+          SIM_RESOLUTION: 128,
+          DYE_RESOLUTION: 1440,
+          DENSITY_DISSIPATION: 3.5,
+          VELOCITY_DISSIPATION: 2,
+          PRESSURE: 0.1,
+          CURL: 3,
+          SPLAT_RADIUS: 0.2,
+          SPLAT_FORCE: 6000,
+          COLOR_UPDATE_SPEED: 10
+        });
+      }
     })();
   </script>
 </body>
